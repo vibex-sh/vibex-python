@@ -8,12 +8,12 @@ with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='vibex',
-    version='0.1.0',
-    description='Vibex Python SDK - Fail-safe logging handler for vibex.sh',
+    name='vibex_sh',
+    version='0.1.6',
+    description='vibex.sh Python SDK - Fail-safe logging handler for vibex.sh',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Vibex',
+    author='vibex.sh',
     author_email='support@vibex.sh',
     url='https://github.com/vibex-sh/vibex-python',
     packages=find_packages(),

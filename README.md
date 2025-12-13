@@ -1,4 +1,4 @@
-# Vibex Python SDK
+# vibex.sh Python SDK
 
 Fail-safe logging handler for sending logs to [vibex.sh](https://vibex.sh).
 
@@ -12,7 +12,7 @@ Fail-safe logging handler for sending logs to [vibex.sh](https://vibex.sh).
 ## Installation
 
 ```bash
-pip install vibex
+pip install vibex_sh
 ```
 
 ## Quick Start
@@ -26,7 +26,7 @@ export VIBEX_SESSION_ID=my-production-app
 2. Use in your Python application:
 ```python
 import logging
-from vibex import VibexHandler
+from vibex_sh import VibexHandler
 
 # Get your logger
 logger = logging.getLogger('my_app')
@@ -63,7 +63,7 @@ The SDK is designed to be fail-safe:
 ### Direct Client Usage
 
 ```python
-from vibex import VibexClient, VibexConfig
+from vibex_sh import VibexClient, VibexConfig
 
 config = VibexConfig()
 client = VibexClient(config)

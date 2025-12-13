@@ -133,3 +133,9 @@ dmypy.json
 .DS_Store
 Thumbs.db
 
+# Publish script (contains sensitive info, keep local)
+publish.sh
+
+# PyPI credentials (if stored locally)
+.pypirc
+
