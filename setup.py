@@ -9,7 +9,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name='vibex_sh',
-    version='0.1.6',
+    version='0.1.7',
     description='vibex.sh Python SDK - Fail-safe logging handler for vibex.sh',
     long_description=long_description,
     long_description_content_type='text/markdown',
