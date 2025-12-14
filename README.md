@@ -76,6 +76,10 @@ vibex_handler = VibexHandler(passthrough_console=False)
 logger.addHandler(vibex_handler)
 ```
 
+**Note:** To avoid duplicate log output when using `passthrough_console=True`, either:
+- Avoid using `logging.basicConfig()` which adds a default StreamHandler, or
+- Configure your logger to not propagate: `logger.propagate = False`
+
 ### `passthrough_on_failure` (default: `False`)
 
 When enabled, logs are written to `stderr` when sending to Vibex fails (rate limits, network errors, etc.). This is useful as an additional safety net, but with `passthrough_console=True` by default, it's typically not needed.

@@ -28,11 +28,6 @@ class VibexHandler(logging.Handler):
         self.client = VibexClient(config, verbose=verbose)
         self.passthrough_console = passthrough_console
         self.passthrough_on_failure = passthrough_on_failure
-        
-        # Prevent propagation to other handlers when console passthrough is enabled
-        # to avoid duplicate log output (we handle console output ourselves)
-        if passthrough_console:
-            self.propagate = False
     
     def emit(self, record: logging.LogRecord) -> None:
         """
