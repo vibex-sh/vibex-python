@@ -12,9 +12,19 @@ from .config import VibexConfig
 logger = logging.getLogger(__name__)
 
 # Suppress urllib3 and requests debug logs
-logging.getLogger('urllib3').setLevel(logging.WARNING)
-logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
-logging.getLogger('requests').setLevel(logging.WARNING)
+# Disable propagation to prevent root logger level from affecting these loggers
+# Set to WARNING level to suppress DEBUG and INFO messages
+urllib3_logger = logging.getLogger('urllib3')
+urllib3_logger.setLevel(logging.WARNING)
+urllib3_logger.propagate = False
+
+urllib3_connectionpool_logger = logging.getLogger('urllib3.connectionpool')
+urllib3_connectionpool_logger.setLevel(logging.WARNING)
+urllib3_connectionpool_logger.propagate = False
+
+requests_logger = logging.getLogger('requests')
+requests_logger.setLevel(logging.WARNING)
+requests_logger.propagate = False
 
 
 class VibexClient:
