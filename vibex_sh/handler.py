@@ -5,6 +5,7 @@ Python logging.Handler implementation for Vibex
 
 import json
 import logging
+import sys
 from .client import VibexClient
 from .config import VibexConfig
 
@@ -12,16 +13,21 @@ from .config import VibexConfig
 class VibexHandler(logging.Handler):
     """Python logging handler that sends logs to Vibex"""
     
-    def __init__(self, config: VibexConfig = None, verbose: bool = False):
+    def __init__(self, config: VibexConfig = None, verbose: bool = False, 
+                 passthrough_console: bool = True, passthrough_on_failure: bool = False):
         """
         Initialize VibexHandler
         
         Args:
             config: Optional VibexConfig instance. If None, loads from environment.
             verbose: If True, print status messages to stderr when handler is initialized or errors occur.
+            passthrough_console: If True, always write logs to stderr in addition to sending to Vibex (default: True).
+            passthrough_on_failure: If True, write logs to stderr when sending to Vibex fails (default: False).
         """
         super().__init__()
         self.client = VibexClient(config, verbose=verbose)
+        self.passthrough_console = passthrough_console
+        self.passthrough_on_failure = passthrough_on_failure
     
     def emit(self, record: logging.LogRecord) -> None:
         """
@@ -30,9 +36,6 @@ class VibexHandler(logging.Handler):
         Args:
             record: LogRecord from Python logging
         """
-        if not self.client.is_enabled():
-            return
-        
         try:
             # Get the actual message content
             if hasattr(record, 'getMessage'):
@@ -46,14 +49,39 @@ class VibexHandler(logging.Handler):
                 parsed = json.loads(message)
                 if isinstance(parsed, dict):
                     # Message is a JSON object - use it as the payload directly
-                    payload = parsed
+                    payload = parsed.copy()
                     
                     # Add exception info if present
                     if record.exc_info:
                         payload['exc_info'] = self.formatException(record.exc_info)
                     
-                    # Send as JSON log
-                    self.client.send_log('json', payload, int(record.created * 1000))
+                    # Track whether we should write to console
+                    should_write_to_console = self.passthrough_console
+                    send_succeeded = False
+                    
+                    # Try to send to Vibex if enabled
+                    if self.client.is_enabled():
+                        send_succeeded = self.client.send_log('json', payload, int(record.created * 1000))
+                        # If passthrough_on_failure is enabled and sending failed, write to console
+                        if self.passthrough_on_failure and not send_succeeded:
+                            should_write_to_console = True
+                    elif self.passthrough_on_failure:
+                        # Client is disabled, treat as failure
+                        should_write_to_console = True
+                    
+                    # Write to console if needed
+                    if should_write_to_console:
+                        try:
+                            # Format payload with timestamp for console output
+                            console_output = {
+                                'timestamp': int(record.created * 1000),
+                                **payload
+                            }
+                            print(json.dumps(console_output), file=sys.stderr, flush=True)
+                        except Exception:
+                            # Fail-safe: silently ignore console write errors
+                            pass
+                    
                 # If parsed is not a dict (string, number, etc.), discard it
             except (json.JSONDecodeError, TypeError):
                 # Message is not JSON - discard it completely
