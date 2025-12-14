@@ -44,9 +44,49 @@ class VibexClient:
                 self._print_status(f"⚠️  Vibex SDK disabled: Missing configuration: {', '.join(missing)}")
             logger.debug(f'Vibex SDK disabled: Missing configuration: {", ".join(missing)}')
         else:
+            self._print_startup_info()
             if self.verbose:
                 self._print_status("✅ Vibex SDK enabled and ready")
                 logger.debug('Vibex SDK enabled')
+    
+    def _mask_token(self, token: str) -> str:
+        """Mask token for display (show first 6 chars, mask the rest)"""
+        if not token or len(token) <= 6:
+            return '******'
+        return f"{token[:6]}{'*' * (len(token) - 6)}"
+    
+    def _print_startup_info(self):
+        """Print elegant startup information about vibex.sh"""
+        masked_token = self._mask_token(self.config.token)
+        
+        # Box width is 61 chars, "║  Server:  " is 11 chars, " ║" is 2 chars
+        # So content width = 61 - 11 - 2 = 48 chars
+        content_width = 48
+        
+        def _format_field(value: str) -> str:
+            """Format field value to fit within content width"""
+            if not value:
+                return ' ' * content_width
+            if len(value) > content_width:
+                return value[:content_width]
+            return value + ' ' * (content_width - len(value))
+        
+        server = _format_field(self.config.api_url)
+        session = _format_field(self.config.session_id)
+        token = _format_field(masked_token)
+        
+        lines = [
+            "",
+            "                    vibex.sh is in action                      ",
+            "═══════════════════════════════════════════════════════════════",
+            f"Server:  {server}",
+            f"Session: {session}",
+            f"Token:   {token}",
+            "═══════════════════════════════════════════════════════════════",
+            ""
+        ]
+        print("\n".join(lines), file=sys.stderr, flush=True)
+        self._initialization_message_shown = True
     
     def _print_status(self, message: str):
         """Print status message to stderr (visible even when stdout is redirected)"""
