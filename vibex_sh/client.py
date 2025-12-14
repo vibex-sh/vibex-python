@@ -11,6 +11,11 @@ from .config import VibexConfig
 
 logger = logging.getLogger(__name__)
 
+# Suppress urllib3 and requests debug logs
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
+logging.getLogger('requests').setLevel(logging.WARNING)
+
 
 class VibexClient:
     """Client for sending logs to Vibex API"""
