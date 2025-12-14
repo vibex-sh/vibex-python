@@ -28,6 +28,11 @@ class VibexHandler(logging.Handler):
         self.client = VibexClient(config, verbose=verbose)
         self.passthrough_console = passthrough_console
         self.passthrough_on_failure = passthrough_on_failure
+        
+        # Prevent propagation to other handlers when console passthrough is enabled
+        # to avoid duplicate log output (we handle console output ourselves)
+        if passthrough_console:
+            self.propagate = False
     
     def emit(self, record: logging.LogRecord) -> None:
         """
@@ -77,7 +82,9 @@ class VibexHandler(logging.Handler):
                                 'timestamp': int(record.created * 1000),
                                 **payload
                             }
-                            print(json.dumps(console_output), file=sys.stderr, flush=True)
+                            # Pretty-print JSON for elegant console output
+                            formatted_json = json.dumps(console_output, indent=2, sort_keys=False, ensure_ascii=False)
+                            print(formatted_json, file=sys.stderr, flush=True)
                         except Exception:
                             # Fail-safe: silently ignore console write errors
                             pass
