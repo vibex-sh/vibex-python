@@ -141,9 +141,24 @@ class VibexClient:
                 self.disabled_permanently = True
                 return False
             
-            # Handle 429 - rate limit exceeded, retry with backoff
+            # Handle 429 - rate limit exceeded or history limit reached
             if response.status_code == 429:
-                error_msg = '⚠️  Vibex SDK: Rate limit exceeded, dropping log'
+                # Try to parse error message from response
+                try:
+                    error_data = response.json()
+                    error_message = error_data.get('message', 'Rate limit exceeded')
+                    error_type = error_data.get('error', 'Rate limit exceeded')
+                    
+                    # Check if it's a history limit error
+                    if 'History Limit' in error_type or 'history limit' in error_message.lower():
+                        error_msg = f'🚫 Vibex SDK: {error_message}'
+                        # Permanently disable if history limit is reached (no point retrying)
+                        self.disabled_permanently = True
+                    else:
+                        error_msg = f'⚠️  Vibex SDK: {error_message}'
+                except:
+                    error_msg = '⚠️  Vibex SDK: Rate limit exceeded, dropping log'
+                
                 if self.verbose:
                     self._print_status(error_msg)
                 logger.warning(error_msg)
