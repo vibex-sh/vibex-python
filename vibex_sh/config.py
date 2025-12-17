@@ -26,6 +26,7 @@ class VibexConfig:
             self.api_url = f"{worker_url.rstrip('/')}/api/v1/ingest"
         else:
             # Production default - use Worker URL (not web URL)
+            # For local development, set VIBEX_WORKER_URL=http://localhost:8787
             self.api_url = 'https://ingest.vibex.sh/api/v1/ingest'
         
     def _normalize_session_id(self, session_id: Optional[str]) -> Optional[str]:
